@@ -103,7 +103,12 @@ namespace Luadio
 
         private void OnNewFrame(float deltaTime)
         {
-            //ImGui.ShowStyleEditor();
+            // if(ImGui.Begin("Edit Style"))
+            // {
+            //     ImGui.ShowStyleEditor();
+            //     ImGui.End();
+            // }
+            
             ShowMenu();
             ShowEditor();
             ShowInspector();

@@ -90,8 +90,8 @@ public class TextEditorRenderer
 
         _charWidthCache = new SimpleCache<char, float>(
             "char widths", 
-            //x => font.GetCharAdvance(x)
-            x => ImGui.CalcTextSize(x.ToString()).X
+            x => font.GetCharAdvance(x)
+            //x => ImGui.CalcTextSize(x.ToString()).X
         );
     }
 
@@ -153,7 +153,10 @@ public class TextEditorRenderer
     void RenderInner()
     {
         /* Compute _charAdvance regarding to scaled font size (Ctrl + mouse wheel)*/
-        float fontSize = _charWidthCache.Get('#');
+        //Maybe this is not the best way to calculate font size
+        //float fontSize = _charWidthCache.Get('#');
+        float fontSize = ImGui.GetFontSize();
+        //ImGui.GetFontSize()
         _charAdvance = new Vector2(fontSize, ImGui.GetTextLineHeightWithSpacing() * LineSpacing);
 
         var alpha = ImGui.GetStyle().Alpha;
