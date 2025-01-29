@@ -205,7 +205,7 @@ namespace Luadio
             MiniAudioEx.AudioContext.Deinitialize();
         }
 
-        public static void Quit()
+        public void Close()
         {
             GLFW.SetWindowShouldClose(NativeWindow, GLFW.TRUE);
         }
