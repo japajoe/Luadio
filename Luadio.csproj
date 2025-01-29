@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="JAJ.Packages.LuaNET" Version="1.1.0" />
+    <PackageReference Include="JAJ.Packages.OpenTK5" Version="1.0.0" />
+    <PackageReference Include="JAJ.Packages.GLFWNet" Version="1.0.3" />
+    <PackageReference Include="JAJ.Packages.MiniAudioEx" Version="1.8.0" />
+    <!-- <PackageReference Include="ImGui.NET" Version="1.91.6.1" /> -->
+    <PackageReference Include="ImGui.NET" Version="1.91.0.1" />
+  </ItemGroup>
+
+</Project>
