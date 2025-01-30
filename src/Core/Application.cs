@@ -210,7 +210,8 @@ namespace Luadio
                 {
                     case Graph.Mode.Frequency:
                         audioData.SetLock(true);
-                        fftBuffer.SetData(audioData.Data);
+                        if(audioSource.IsPlaying)
+                            fftBuffer.SetData(audioData.Data);
                         ImGui.PushStyleColor(ImGuiCol.PlotHistogram, graph.color);
                         ImGui.PlotHistogram("##plot_histogram", ref fftBuffer.Data[0], fftBuffer.Length, 0, null, 0.0f, 1.0f, new Vector2(128, 64));
                         ImGui.PopStyleColor(1);

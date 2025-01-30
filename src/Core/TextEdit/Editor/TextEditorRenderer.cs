@@ -119,11 +119,13 @@ public class TextEditorRenderer
 
         if (!IsImGuiChildIgnored)
         {
-            ImGui.BeginChild(title, size, 
-                ImGuiChildFlags.None,
-                ImGuiWindowFlags.HorizontalScrollbar
-                | ImGuiWindowFlags.AlwaysHorizontalScrollbar
-                | ImGuiWindowFlags.NoMove);
+            ImGui.BeginChild(title, size, ImGuiChildFlags.None, ImGuiWindowFlags.NoMove);
+
+            // ImGui.BeginChild(title, size, 
+            //     ImGuiChildFlags.None,
+            //     ImGuiWindowFlags.HorizontalScrollbar
+            //     | ImGuiWindowFlags.AlwaysHorizontalScrollbar
+            //     | ImGuiWindowFlags.NoMove);
         }
 
         if (IsHandleKeyboardInputsEnabled && KeyboardInput != null)
