@@ -29,13 +29,12 @@ using MiniAudioEx;
 using ImGuiColorTextEditNet;
 using ImGuiNET;
 using System.Numerics;
+using System.Threading;
 
 namespace Luadio
 {
     public sealed class Application
     {
-
-
         private class Graph
         {
             public enum Mode
@@ -69,6 +68,7 @@ namespace Luadio
         private ConcurrentQueue<LuaFieldInfo> fieldQueue;
         private TextEditor textEditor;
         private Graph graph;
+        private Mutex luaMutex;
 
         public Application()
         {
@@ -81,6 +81,7 @@ namespace Luadio
             console = new ImGuiConsole();
             fieldQueue = new ConcurrentQueue<LuaFieldInfo>();
             graph = new Graph();
+            luaMutex = new Mutex();
             window = new Window(512, 512, "Luadio", WindowFlags.VSync);
         }
 
@@ -139,6 +140,7 @@ namespace Luadio
             ShowEditor();
             ShowInspector();
             ShowLog();
+            OnUpdate(deltaTime);
         }
 
         private bool showDialog = false;
@@ -271,7 +273,7 @@ namespace Luadio
         }
 
         private void ShowInspector()
-        {            
+        {  
             if(ImGui.Begin("Inspector"))
             {
                 for(int i = 0; i < fields.Count; i++)
@@ -395,6 +397,7 @@ namespace Luadio
                 if(result == 0)
                 {
                     OnLogMessage("Compile ok");
+                    Onstart();
                     audioSource.Play();
                 }
                 else
@@ -406,11 +409,73 @@ namespace Luadio
                 }
             }
             else
+            {
+                OnStop();
                 audioSource.Stop();
+            }
+        }
+
+        private void Onstart()
+        {
+            luaMutex.WaitOne();
+
+            Lua.GetGlobal(L, "on_start");
+
+            if(Lua.IsFunction(L, -1))
+                Lua.PCall(L, 0, 0, 0);
+
+            int top = Lua.GetTop(L);
+
+            if(top > 0)
+                Lua.Pop(L, top);
+
+            luaMutex.ReleaseMutex();
+        }
+
+        private void OnStop()
+        {
+            luaMutex.WaitOne();
+
+            Lua.GetGlobal(L, "on_stop");
+
+            if(Lua.IsFunction(L, -1))
+                Lua.PCall(L, 0, 0, 0);
+
+            int top = Lua.GetTop(L);
+
+            if(top > 0)
+                Lua.Pop(L, top);
+
+            luaMutex.ReleaseMutex();
+        }
+
+        private void OnUpdate(float deltaTime)
+        {
+            if(!audioSource.IsPlaying)
+                return;
+
+            luaMutex.WaitOne();
+
+            Lua.GetGlobal(L, "on_update");
+
+            if(Lua.IsFunction(L, -1))
+            {
+                Lua.PushNumber(L, deltaTime);
+                Lua.PCall(L, 1, 0, 0);
+            }
+
+            int top = Lua.GetTop(L);
+
+            if(top > 0)
+                Lua.Pop(L, top);
+
+            luaMutex.ReleaseMutex();
         }
 
         private void OnAudioRead(AudioBuffer<float> framesOut, ulong frameCount, int channels)
         {
+            luaMutex.WaitOne();
+
             Lua.GetGlobal(L, "on_audio_read");
 
             if(Lua.IsFunction(L, -1))
@@ -429,9 +494,9 @@ namespace Luadio
             int top = Lua.GetTop(L);
 
             if(top > 0)
-            {
                 Lua.Pop(L, top);
-            }
+
+            luaMutex.ReleaseMutex();
         }
 
         private void OnLogMessage(string message)

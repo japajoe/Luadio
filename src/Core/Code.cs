@@ -51,6 +51,19 @@ gain = 0.1
 [Checkbox]
 logCounter = false
 
+function on_start()
+
+end
+
+function on_stop()
+
+end
+
+function on_update(deltaTime)
+
+end
+
+--Runs on separate thread
 function on_audio_read(data, length, channels)
     local pData = ffi.cast('float*', data)
 

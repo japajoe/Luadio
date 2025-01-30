@@ -1,4 +1,5 @@
 /bin
 /obj
 /res
+/src/FileBrowser.cs
 imgui.ini

@@ -28,11 +28,11 @@ namespace Luadio
 {
     public static class GUIStyle
     {
-        private static ImFontPtr defaultFont;
+        private static ImFontPtr iconFont;
 
-        public static ImFontPtr DefaultFont
+        public static ImFontPtr IconFont
         {
-            get => defaultFont;
+            get => iconFont;
         }
 
         public static void SetStyle()
@@ -127,21 +127,25 @@ namespace Luadio
             var io = ImGui.GetIO();
             io.Fonts.AddFontDefault();
 
-            //Code editor doesn't like non default fonts
-            // unsafe
-            // {
-            //     fixed(byte *pFont = &Font.data[0])
-            //     {
-            //         var nativeConfig = ImGuiNative.ImFontConfig_ImFontConfig();
-            //         nativeConfig->OversampleH = 8;
-            //         nativeConfig->OversampleV = 8;
-            //         nativeConfig->RasterizerMultiply = 1.0f;
-            //         nativeConfig->GlyphOffset = new Vector2(0);
+            unsafe
+            {
+                fixed(byte *pFont = &OpenFontIcons.data[0])
+                {
+                    var nativeConfig = ImGuiNative.ImFontConfig_ImFontConfig();
+                    // nativeConfig->OversampleH = 8;
+                    // nativeConfig->OversampleV = 8;
+                    // nativeConfig->RasterizerMultiply = 1.0f;
+                    // nativeConfig->GlyphOffset = new Vector2(0);
 
-            //         IntPtr data = new IntPtr(pFont);
-            //         defaultFont = io.Fonts.AddFontFromMemoryTTF(data, Font.data.Length, 14, nativeConfig);
-            //     }
-            // }
+                    nativeConfig->MergeMode = 1;
+                    nativeConfig->GlyphMinAdvanceX = 13.0f; // Use if you want to make the icon monospaced
+
+                    IntPtr data = new IntPtr(pFont);
+                    iconFont = io.Fonts.AddFontFromMemoryTTF(data, OpenFontIcons.data.Length, 14, nativeConfig);
+                }
+            }
+
+            io.Fonts.Build();
         }
 
         public static string GetSettings()
