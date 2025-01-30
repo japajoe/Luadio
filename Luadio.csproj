@@ -12,6 +12,8 @@
     <PackageReference Include="JAJ.Packages.GLFWNet" Version="1.0.3" />
     <PackageReference Include="JAJ.Packages.MiniAudioEx" Version="1.8.0" />
     <PackageReference Include="ImGui.NET" Version="1.91.0.1" />
+    <PackageReference Include="MathNet.Numerics" Version="5.0.0" />
+    <PackageReference Include="StbImageSharp" Version="2.30.15" />
   </ItemGroup>
 
 </Project>

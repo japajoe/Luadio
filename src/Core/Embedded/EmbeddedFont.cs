@@ -22,7 +22,7 @@
 
 namespace Luadio
 {
-    public static class Font
+    public static class EmbeddedFont
     {
         public static readonly byte[] data = new byte[87236]
         {

@@ -22,6 +22,9 @@
 
 using System.Threading;
 using MiniAudioEx;
+using MathNet.Numerics;
+using System.Numerics;
+using MathNet.Numerics.IntegralTransforms;
 
 namespace Luadio
 {
@@ -29,13 +32,24 @@ namespace Luadio
     {
         private AtomicBool isLocked;
         private float[] data;
+        private float[] fftData;
+        private Complex[] fft;
         private int length;
+        private int fftLength;
 
         public int Length
         {
             get
             {
                 return length;
+            }
+        }
+
+        public int FFTLength
+        {
+            get
+            {
+                return fftLength;
             }
         }
 
@@ -47,10 +61,22 @@ namespace Luadio
             }
         }
 
+        public float[] FFTData
+        {
+            get
+            {
+                return fftData;
+            }
+        }
+
         public AudioData(int bufferSize)
         {
             this.data = new float[bufferSize];
             this.length = bufferSize;
+            int length = NextPowerOfTwo(bufferSize);
+            fft = new Complex[length];
+            fftData = new float[length / 2];
+            this.fftLength = NextPowerOfTwo(length / 2);
             this.isLocked = new AtomicBool(false);
         }
 
@@ -60,7 +86,9 @@ namespace Luadio
                 return;
 
             if(buffer.Length > data.Length)
+            {
                 data = new float[buffer.Length];
+            }
 
             if(buffer.Length > 0 && buffer.Length <= data.Length)
             {
@@ -73,9 +101,54 @@ namespace Luadio
             }
         }
 
+        public void SetDataWithFFT(AudioBuffer<float> buffer)
+        {
+            if(isLocked.Value)
+                return;
+
+            if(buffer.Length > data.Length)
+            {
+                data = new float[buffer.Length];
+                int length = NextPowerOfTwo(buffer.Length);
+                fft = new Complex[length];
+                fftData = new float[length / 2];                
+            }
+
+            if(buffer.Length > 0 && buffer.Length <= data.Length)
+            {
+                this.length = buffer.Length;
+                this.fftLength = NextPowerOfTwo(length / 2);
+                
+                for(int i = 0; i < buffer.Length; i++)
+                {
+                    data[i] = buffer[i];
+                    fft[i] = new Complex(data[i], 0);
+                }
+
+                Fourier.Forward(fft, FourierOptions.Default);
+
+                for (int i = 0; i < fftData.Length; i++)
+                {
+                    fftData[i] = (float)fft[i].Magnitude; // Get magnitude
+                }
+            }
+        }
+
         public void SetLock(bool value)
         {
             isLocked.Value = value;
+        }
+
+        private int NextPowerOfTwo(int value) 
+        {
+            value--;
+            value |= value >> 1;
+            value |= value >> 2;
+            value |= value >> 4;
+            value |= value >> 8;
+            value |= value >> 16;
+            value++;
+            return value;
         }
     }
 

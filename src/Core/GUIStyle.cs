@@ -38,61 +38,70 @@ namespace Luadio
         public static void SetStyle()
         {
             var colors = ImGui.GetStyle().Colors;
-            colors[(int)ImGuiCol.Text]                   = new Vector4(0.86f, 0.87f, 0.88f, 1.00f);
+            var bg = new Vector4(0.10f, 0.10f, 0.11f, 1.00f);
+            var bgHovered = new Vector4(0.20f, 0.22f, 0.24f, 1.00f);
+            var bgActive = new Vector4(0.23f, 0.26f, 0.29f, 1.00f);
+            var frameBg = new Vector4(0.15f, 0.16f, 0.17f, 1.00f);
+            var menuBg = new Vector4(0.10f, 0.11f, 0.11f, 1.00f);
+            var text = new Vector4(0.86f, 0.87f, 0.88f, 1.00f);
+            var grab = new Vector4(0.17f, 0.18f, 0.19f, 1.00f);
+            var checkMark = new Vector4(0.26f, 0.59f, 0.98f, 1.00f);
+
+            colors[(int)ImGuiCol.Text]                   = text;
             colors[(int)ImGuiCol.TextDisabled]           = new Vector4(0.50f, 0.50f, 0.50f, 1.00f);
-            colors[(int)ImGuiCol.WindowBg]               = new Vector4(0.10f, 0.10f, 0.11f, 1.00f);
-            colors[(int)ImGuiCol.ChildBg]                = new Vector4(0.10f, 0.10f, 0.11f, 1.00f);
-            colors[(int)ImGuiCol.PopupBg]                = new Vector4(0.15f, 0.16f, 0.17f, 1.00f);
-            colors[(int)ImGuiCol.Border]                 = new Vector4(0.10f, 0.10f, 0.11f, 1.00f);
+            colors[(int)ImGuiCol.WindowBg]               = bg;
+            colors[(int)ImGuiCol.ChildBg]                = bg;
+            colors[(int)ImGuiCol.PopupBg]                = frameBg;
+            colors[(int)ImGuiCol.Border]                 = bg;
             colors[(int)ImGuiCol.BorderShadow]           = new Vector4(0.14f, 0.16f, 0.18f, 1.00f);
-            colors[(int)ImGuiCol.FrameBg]                = new Vector4(0.15f, 0.16f, 0.17f, 1.00f);
-            colors[(int)ImGuiCol.FrameBgHovered]         = new Vector4(0.20f, 0.22f, 0.24f, 1.00f);
-            colors[(int)ImGuiCol.FrameBgActive]          = new Vector4(0.23f, 0.26f, 0.29f, 1.00f);
-            colors[(int)ImGuiCol.TitleBg]                = new Vector4(0.10f, 0.10f, 0.11f, 1.00f);
-            colors[(int)ImGuiCol.TitleBgActive]          = new Vector4(0.10f, 0.10f, 0.11f, 1.00f);
-            colors[(int)ImGuiCol.TitleBgCollapsed]       = new Vector4(0.10f, 0.10f, 0.11f, 1.00f);
-            colors[(int)ImGuiCol.MenuBarBg]              = new Vector4(0.10f, 0.11f, 0.11f, 1.00f);
-            colors[(int)ImGuiCol.ScrollbarBg]            = new Vector4(0.10f, 0.10f, 0.11f, 1.00f);
-            colors[(int)ImGuiCol.ScrollbarGrab]          = new Vector4(0.17f, 0.18f, 0.19f, 1.00f);
-            colors[(int)ImGuiCol.ScrollbarGrabHovered]   = new Vector4(0.20f, 0.22f, 0.24f, 1.00f);
-            colors[(int)ImGuiCol.ScrollbarGrabActive]    = new Vector4(0.23f, 0.26f, 0.29f, 1.00f);
-            colors[(int)ImGuiCol.CheckMark]              = new Vector4(0.26f, 0.59f, 0.98f, 1.00f);
-            colors[(int)ImGuiCol.SliderGrab]             = new Vector4(0.20f, 0.22f, 0.24f, 1.00f);
-            colors[(int)ImGuiCol.SliderGrabActive]       = new Vector4(0.26f, 0.59f, 0.98f, 1.00f);
-            colors[(int)ImGuiCol.Button]                 = new Vector4(0.10f, 0.10f, 0.11f, 1.00f);
-            colors[(int)ImGuiCol.ButtonHovered]          = new Vector4(0.20f, 0.22f, 0.24f, 1.00f);
-            colors[(int)ImGuiCol.ButtonActive]           = new Vector4(0.10f, 0.10f, 0.11f, 1.00f);
-            colors[(int)ImGuiCol.Header]                 = new Vector4(0.17f, 0.18f, 0.19f, 1.00f);
-            colors[(int)ImGuiCol.HeaderHovered]          = new Vector4(0.20f, 0.22f, 0.24f, 1.00f);
-            colors[(int)ImGuiCol.HeaderActive]           = new Vector4(0.23f, 0.26f, 0.29f, 1.00f);
-            colors[(int)ImGuiCol.Separator]              = new Vector4(0.10f, 0.10f, 0.11f, 1.00f);
-            colors[(int)ImGuiCol.SeparatorHovered]       = new Vector4(0.20f, 0.22f, 0.24f, 1.00f);
-            colors[(int)ImGuiCol.SeparatorActive]        = new Vector4(0.23f, 0.26f, 0.29f, 1.00f);
-            colors[(int)ImGuiCol.ResizeGrip]             = new Vector4(0.17f, 0.18f, 0.19f, 1.00f);
-            colors[(int)ImGuiCol.ResizeGripHovered]      = new Vector4(0.20f, 0.22f, 0.24f, 1.00f);
-            colors[(int)ImGuiCol.ResizeGripActive]       = new Vector4(0.23f, 0.26f, 0.29f, 1.00f);
-            colors[(int)ImGuiCol.TabHovered]             = new Vector4(0.10f, 0.11f, 0.11f, 1.00f);
-            colors[(int)ImGuiCol.Tab]                    = new Vector4(0.10f, 0.11f, 0.11f, 1.00f);
-            colors[(int)ImGuiCol.TabSelected]            = new Vector4(0.10f, 0.11f, 0.11f, 1.00f);
-            colors[(int)ImGuiCol.TabSelectedOverline]    = new Vector4(0.10f, 0.11f, 0.11f, 1.00f);
-            colors[(int)ImGuiCol.TabDimmed]              = new Vector4(0.10f, 0.11f, 0.11f, 1.00f);
-            colors[(int)ImGuiCol.TabDimmedSelected]      = new Vector4(0.10f, 0.10f, 0.11f, 1.00f);
-            colors[(int)ImGuiCol.TabDimmedSelectedOverline]  = new Vector4(0.10f, 0.11f, 0.11f, 1.00f);
+            colors[(int)ImGuiCol.FrameBg]                = frameBg;
+            colors[(int)ImGuiCol.FrameBgHovered]         = bgHovered;
+            colors[(int)ImGuiCol.FrameBgActive]          = bgActive;
+            colors[(int)ImGuiCol.TitleBg]                = bg;
+            colors[(int)ImGuiCol.TitleBgActive]          = bg;
+            colors[(int)ImGuiCol.TitleBgCollapsed]       = bg;
+            colors[(int)ImGuiCol.MenuBarBg]              = menuBg;
+            colors[(int)ImGuiCol.ScrollbarBg]            = bg;
+            colors[(int)ImGuiCol.ScrollbarGrab]          = grab;
+            colors[(int)ImGuiCol.ScrollbarGrabHovered]   = bgHovered;
+            colors[(int)ImGuiCol.ScrollbarGrabActive]    = bgActive;
+            colors[(int)ImGuiCol.CheckMark]              = checkMark;
+            colors[(int)ImGuiCol.SliderGrab]             = bgHovered;
+            colors[(int)ImGuiCol.SliderGrabActive]       = checkMark;
+            colors[(int)ImGuiCol.Button]                 = bg;
+            colors[(int)ImGuiCol.ButtonHovered]          = bgHovered;
+            colors[(int)ImGuiCol.ButtonActive]           = bg;
+            colors[(int)ImGuiCol.Header]                 = grab;
+            colors[(int)ImGuiCol.HeaderHovered]          = bgHovered;
+            colors[(int)ImGuiCol.HeaderActive]           = bgActive;
+            colors[(int)ImGuiCol.Separator]              = bg;
+            colors[(int)ImGuiCol.SeparatorHovered]       = bgHovered;
+            colors[(int)ImGuiCol.SeparatorActive]        = bgActive;
+            colors[(int)ImGuiCol.ResizeGrip]             = grab;
+            colors[(int)ImGuiCol.ResizeGripHovered]      = bgHovered;
+            colors[(int)ImGuiCol.ResizeGripActive]       = bgActive;
+            colors[(int)ImGuiCol.TabHovered]             = menuBg;
+            colors[(int)ImGuiCol.Tab]                    = menuBg;
+            colors[(int)ImGuiCol.TabSelected]            = menuBg;
+            colors[(int)ImGuiCol.TabSelectedOverline]    = menuBg;
+            colors[(int)ImGuiCol.TabDimmed]              = menuBg;
+            colors[(int)ImGuiCol.TabDimmedSelected]      = bg;
+            colors[(int)ImGuiCol.TabDimmedSelectedOverline]  = menuBg;
             colors[(int)ImGuiCol.DockingPreview]         = new Vector4(0.26f, 0.59f, 0.98f, 0.70f);
             colors[(int)ImGuiCol.DockingEmptyBg]         = new Vector4(0.20f, 0.20f, 0.20f, 1.00f);
-            colors[(int)ImGuiCol.PlotLines]              = new Vector4(0.86f, 0.87f, 0.88f, 1.00f);
-            colors[(int)ImGuiCol.PlotLinesHovered]       = new Vector4(0.23f, 0.26f, 0.29f, 1.00f);
-            colors[(int)ImGuiCol.PlotHistogram]          = new Vector4(0.86f, 0.87f, 0.88f, 1.00f);
-            colors[(int)ImGuiCol.PlotHistogramHovered]   = new Vector4(0.23f, 0.26f, 0.29f, 1.00f);
-            colors[(int)ImGuiCol.TableHeaderBg]          = new Vector4(0.10f, 0.11f, 0.11f, 1.00f);
-            colors[(int)ImGuiCol.TableBorderStrong]      = new Vector4(0.10f, 0.11f, 0.11f, 1.00f);
-            colors[(int)ImGuiCol.TableBorderLight]       = new Vector4(0.10f, 0.11f, 0.11f, 1.00f);
-            colors[(int)ImGuiCol.TableRowBg]             = new Vector4(0.10f, 0.10f, 0.11f, 1.00f);
-            colors[(int)ImGuiCol.TableRowBgAlt]          = new Vector4(0.10f, 0.11f, 0.11f, 1.00f);
-            colors[(int)ImGuiCol.TextLink]               = new Vector4(0.26f, 0.59f, 0.98f, 1.00f);
-            colors[(int)ImGuiCol.TextSelectedBg]         = new Vector4(0.23f, 0.26f, 0.29f, 1.00f);
+            colors[(int)ImGuiCol.PlotLines]              = text;
+            colors[(int)ImGuiCol.PlotLinesHovered]       = bgActive;
+            colors[(int)ImGuiCol.PlotHistogram]          = text;
+            colors[(int)ImGuiCol.PlotHistogramHovered]   = bgActive;
+            colors[(int)ImGuiCol.TableHeaderBg]          = menuBg;
+            colors[(int)ImGuiCol.TableBorderStrong]      = menuBg;
+            colors[(int)ImGuiCol.TableBorderLight]       = menuBg;
+            colors[(int)ImGuiCol.TableRowBg]             = bg;
+            colors[(int)ImGuiCol.TableRowBgAlt]          = menuBg;
+            colors[(int)ImGuiCol.TextLink]               = checkMark;
+            colors[(int)ImGuiCol.TextSelectedBg]         = bgActive;
             colors[(int)ImGuiCol.DragDropTarget]         = new Vector4(1.00f, 1.00f, 0.00f, 0.90f);
-            colors[(int)ImGuiCol.NavHighlight]           = new Vector4(0.26f, 0.59f, 0.98f, 1.00f);
+            colors[(int)ImGuiCol.NavHighlight]           = checkMark;
             colors[(int)ImGuiCol.NavWindowingHighlight]  = new Vector4(1.00f, 1.00f, 1.00f, 0.70f);
             colors[(int)ImGuiCol.NavWindowingDimBg]      = new Vector4(0.80f, 0.80f, 0.80f, 0.20f);
             colors[(int)ImGuiCol.ModalWindowDimBg]       = new Vector4(0.10f, 0.10f, 0.11f, 0.50f);
@@ -108,7 +117,6 @@ namespace Luadio
             style.GrabRounding = 2.0f;
             style.TabRounding = 2.0f;
 
-            // Reduced Padding and Spacing
             style.WindowPadding = new Vector2(5.0f, 5.0f);
             style.FramePadding = new Vector2(4.0f, 3.0f);
             style.ItemSpacing = new Vector2(6.0f, 4.0f);
@@ -120,147 +128,6 @@ namespace Luadio
             io.Fonts.AddFontDefault();
 
             //Code editor doesn't like non default fonts
-            // unsafe
-            // {
-            //     fixed(byte *pFont = &Font.data[0])
-            //     {
-            //         var nativeConfig = ImGuiNative.ImFontConfig_ImFontConfig();
-            //         nativeConfig->OversampleH = 8;
-            //         nativeConfig->OversampleV = 8;
-            //         nativeConfig->RasterizerMultiply = 1.0f;
-            //         nativeConfig->GlyphOffset = new Vector2(0);
-
-            //         IntPtr data = new IntPtr(pFont);
-            //         defaultFont = io.Fonts.AddFontFromMemoryTTF(data, Font.data.Length, 14, nativeConfig);
-            //     }
-            // }
-        }
-        
-        public static void SetStyle2()
-        {
-            var style = ImGui.GetStyle();
-            var colors = style.Colors;
-
-            // Base Colors
-            Vector4 bgColor = new Vector4(0.10f, 0.105f, 0.11f, 1.00f);
-            Vector4 lightBgColor = new Vector4(0.15f, 0.16f, 0.17f, 1.00f);
-            Vector4 panelColor = new Vector4(0.17f, 0.18f, 0.19f, 1.00f);
-            Vector4 panelHoverColor = new Vector4(0.20f, 0.22f, 0.24f, 1.00f);
-            Vector4 panelActiveColor = new Vector4(0.23f, 0.26f, 0.29f, 1.00f);
-            Vector4 textColor = new Vector4(0.86f, 0.87f, 0.88f, 1.00f);
-            Vector4 textDisabledColor = new Vector4(0.50f, 0.50f, 0.50f, 1.00f);
-            Vector4 borderColor = new Vector4(0.14f, 0.16f, 0.18f, 1.00f);
-            Vector4 buttonColor = bgColor;
-
-            // Text
-            colors[(int)ImGuiCol.Text] = textColor;
-            colors[(int)ImGuiCol.TextDisabled] = textDisabledColor;
-
-            // Windows
-            colors[(int)ImGuiCol.WindowBg] = bgColor;
-            colors[(int)ImGuiCol.ChildBg] = bgColor;
-            colors[(int)ImGuiCol.PopupBg] = bgColor;
-            colors[(int)ImGuiCol.Border] = borderColor;
-            colors[(int)ImGuiCol.BorderShadow] = borderColor;
-
-            // Headers
-            colors[(int)ImGuiCol.Header] = panelColor;
-            colors[(int)ImGuiCol.HeaderHovered] = panelHoverColor;
-            colors[(int)ImGuiCol.HeaderActive] = panelActiveColor;
-
-            // Buttons
-            colors[(int)ImGuiCol.Button] = buttonColor;
-            colors[(int)ImGuiCol.ButtonHovered] = panelHoverColor;
-            colors[(int)ImGuiCol.ButtonActive] = buttonColor;
-
-            // Frame BG
-            colors[(int)ImGuiCol.FrameBg] = lightBgColor;
-            colors[(int)ImGuiCol.FrameBgHovered] = panelHoverColor;
-            colors[(int)ImGuiCol.FrameBgActive] = panelActiveColor;
-
-            // Tabs
-            colors[(int)ImGuiCol.Tab] = panelColor;
-            colors[(int)ImGuiCol.TabHovered] = panelHoverColor;
-            //colors[(int)ImGuiCol.TabUnfocused] = panelColor;
-            colors[(int)ImGuiCol.TabDimmed] = panelColor;
-
-            //colors[(int)ImGuiCol.TabActive] = bgColor;
-            //colors[(int)ImGuiCol.TabUnfocusedActive] = bgColor;
-            colors[(int)ImGuiCol.TabDimmedSelected] = bgColor;
-
-            // Title
-            colors[(int)ImGuiCol.TitleBg] = bgColor;
-            colors[(int)ImGuiCol.TitleBgActive] = bgColor;
-            colors[(int)ImGuiCol.TitleBgCollapsed] = bgColor;
-
-            // Scrollbar
-            colors[(int)ImGuiCol.ScrollbarBg] = bgColor;
-            colors[(int)ImGuiCol.ScrollbarGrab] = panelColor;
-            colors[(int)ImGuiCol.ScrollbarGrabHovered] = panelHoverColor;
-            colors[(int)ImGuiCol.ScrollbarGrabActive] = panelActiveColor;
-
-            // Checkmark
-            colors[(int)ImGuiCol.CheckMark] = new Vector4(0.26f, 0.59f, 0.98f, 1.00f);
-
-            // Slider
-            colors[(int)ImGuiCol.SliderGrab] = panelHoverColor;
-            colors[(int)ImGuiCol.SliderGrabActive] = panelActiveColor;
-
-            // Resize Grip
-            colors[(int)ImGuiCol.ResizeGrip] = panelColor;
-            colors[(int)ImGuiCol.ResizeGripHovered] = panelHoverColor;
-            colors[(int)ImGuiCol.ResizeGripActive] = panelActiveColor;
-
-            // Separator
-            colors[(int)ImGuiCol.Separator] = bgColor;
-            colors[(int)ImGuiCol.SeparatorHovered] = panelHoverColor;
-            colors[(int)ImGuiCol.SeparatorActive] = panelActiveColor;
-
-            // Plot
-            colors[(int)ImGuiCol.PlotLines] = textColor;
-            colors[(int)ImGuiCol.PlotLinesHovered] = panelActiveColor;
-            colors[(int)ImGuiCol.PlotHistogram] = textColor;
-            colors[(int)ImGuiCol.PlotHistogramHovered] = panelActiveColor;
-
-            // Text Selected BG
-            colors[(int)ImGuiCol.TextSelectedBg] = panelActiveColor;
-
-            // Modal Window Dim Bg
-            colors[(int)ImGuiCol.ModalWindowDimBg] = new Vector4(0.10f, 0.105f, 0.11f, 0.5f);
-
-            // Tables
-            colors[(int)ImGuiCol.TableHeaderBg] = panelColor;
-            colors[(int)ImGuiCol.TableBorderStrong] = borderColor;
-            colors[(int)ImGuiCol.TableBorderLight] = borderColor;
-            colors[(int)ImGuiCol.TableRowBg] = bgColor;
-            colors[(int)ImGuiCol.TableRowBgAlt] = lightBgColor;
-
-            // Styles
-            style.FrameBorderSize = 0.0f;
-            style.FrameRounding = 2.0f;
-            style.WindowBorderSize = 1.0f;
-            style.PopupBorderSize = 1.0f;
-            style.ScrollbarSize = 12.0f;
-            style.ScrollbarRounding = 2.0f;
-            style.GrabMinSize = 7.0f;
-            style.GrabRounding = 2.0f;
-            style.TabBorderSize = 1.0f;
-            style.TabRounding = 2.0f;
-
-            // Reduced Padding and Spacing
-            style.WindowPadding = new Vector2(5.0f, 5.0f);
-            style.FramePadding = new Vector2(4.0f, 3.0f);
-            style.ItemSpacing = new Vector2(6.0f, 4.0f);
-            style.ItemInnerSpacing = new Vector2(4.0f, 4.0f);
-
-            // Font Scaling
-            var io = ImGui.GetIO();
-            // io.FontGlobalScale = 0.95f;
-
-            io.Fonts.AddFontDefault();
-            // float baseFontSize = 18.0f;
-            // float iconFontSize = baseFontSize * 2.0f / 3.0f;
-
             // unsafe
             // {
             //     fixed(byte *pFont = &Font.data[0])

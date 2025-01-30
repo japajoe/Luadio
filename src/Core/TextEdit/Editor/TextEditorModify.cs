@@ -60,21 +60,17 @@ public class TextEditorModify
         _undo.AddUndo(undo);
     }
 
-    public unsafe void Paste()
+    public void Paste()
     {
         Util.Assert(!_options.IsReadOnly);
 
-        var pClipText = ImGuiNative.igGetClipboardText();
+        unsafe
+        {
+            if(ImGuiNative.igGetClipboardText() == null)
+                return;
+        }
 
-        if(pClipText == null)
-            return;
-
-        int length = 0;
-
-        for (int i = 0; pClipText[i] != 0; i++)
-            length++;
-
-        string clipText = Encoding.UTF8.GetString(pClipText, length);
+        var clipText = ImGui.GetClipboardText();
 
         //Will crash if there is anything other than text on the clipboard
         if (string.IsNullOrEmpty(clipText))
