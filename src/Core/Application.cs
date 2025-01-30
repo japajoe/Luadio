@@ -34,10 +34,26 @@ namespace Luadio
 {
     public sealed class Application
     {
-        private enum GraphMode
+
+
+        private class Graph
         {
-            Waveform,
-            Frequency
+            public enum Mode
+            {
+                Waveform,
+                Frequency
+            }
+
+            public Mode mode;
+            public bool setColor;
+            public Vector4 color;
+
+            public Graph()
+            {
+                mode = Mode.Waveform;
+                setColor = false;
+                color = new Vector4(174.0f / 255.0f, 112.0f / 255.0f, 1.0f, 1.0f);
+            }
         }
         
         private Window window;
@@ -46,22 +62,25 @@ namespace Luadio
         private Tokenizer tokenizer;
         private List<LuaField> fields;
         private AudioData audioData;
+        private FFTBuffer fftBuffer;
         private ConcurrentQueue<string> logQueue;
         private List<LuaModule> modules;
         private ImGuiConsole console;
         private ConcurrentQueue<LuaFieldInfo> fieldQueue;
         private TextEditor textEditor;
-        private GraphMode graphMode = GraphMode.Waveform;
+        private Graph graph;
 
         public Application()
         {
             tokenizer = new Tokenizer();
             fields = new List<LuaField>();
             audioData = new AudioData(4096);
+            fftBuffer = new FFTBuffer(4096);
             logQueue = new ConcurrentQueue<string>();
             modules = new List<LuaModule>();
             console = new ImGuiConsole();
             fieldQueue = new ConcurrentQueue<LuaFieldInfo>();
+            graph = new Graph();
             window = new Window(512, 512, "Luadio", WindowFlags.VSync);
         }
 
@@ -187,19 +206,22 @@ namespace Luadio
         {
             if(ImGui.Begin("Compile"))
             {
-                audioData.SetLock(true);
-
-                switch(graphMode)
+                switch(graph.mode)
                 {
-                    case GraphMode.Frequency:
-                        ImGui.PushStyleColor(ImGuiCol.PlotHistogram, new Vector4(174.0f / 255.0f, 112.0f / 255.0f, 1.0f, 1.0f));
-                        ImGui.PlotHistogram("##plot", ref audioData.FFTData[0], audioData.FFTLength, 0, null, 0.0f, 1.0f, new Vector2(128, 64));
+                    case Graph.Mode.Frequency:
+                        audioData.SetLock(true);
+                        fftBuffer.SetData(audioData.Data);
+                        ImGui.PushStyleColor(ImGuiCol.PlotHistogram, graph.color);
+                        ImGui.PlotHistogram("##plot_histogram", ref fftBuffer.Data[0], fftBuffer.Length, 0, null, 0.0f, 1.0f, new Vector2(128, 64));
                         ImGui.PopStyleColor(1);
+                        audioData.SetLock(false);
                         break;
-                    case GraphMode.Waveform:
-                        ImGui.PushStyleColor(ImGuiCol.PlotLines, new Vector4(174.0f / 255.0f, 112.0f / 255.0f, 1.0f, 1.0f));
-                        ImGui.PlotLines("##plot", ref audioData.Data[0], audioData.Length, 0, null, -1.0f, 1.0f, new Vector2(128, 64));
+                    case Graph.Mode.Waveform:
+                        audioData.SetLock(true);
+                        ImGui.PushStyleColor(ImGuiCol.PlotLines, graph.color);
+                        ImGui.PlotLines("##plot_lines", ref audioData.Data[0], audioData.Length, 0, null, -1.0f, 1.0f, new Vector2(128, 64));
                         ImGui.PopStyleColor(1);
+                        audioData.SetLock(false);
                         break;
                     default:
                         break;
@@ -208,19 +230,31 @@ namespace Luadio
                 if (ImGui.IsItemHovered())
                 {
                     ImGui.BeginTooltip();
-                    ImGui.Text("Click to change mode");
+                    ImGui.Text("Left click to change mode, right click to change color");
                     ImGui.EndTooltip();
                 }
 
-                if(ImGui.IsItemClicked())
+                if(ImGui.IsItemClicked(ImGuiMouseButton.Left))
                 {
-                    if(graphMode == GraphMode.Waveform)
-                        graphMode = GraphMode.Frequency;
+                    if(graph.mode == Graph.Mode.Waveform)
+                        graph.mode = Graph.Mode.Frequency;
                     else
-                        graphMode = GraphMode.Waveform;
+                        graph.mode = Graph.Mode.Waveform;
                 }
 
-                audioData.SetLock(false);
+                if(ImGui.IsItemClicked(ImGuiMouseButton.Right))
+                {
+                    graph.setColor = true;
+                }
+
+                if(graph.setColor)
+                {
+                    if(ImGui.Begin("Select Color", ref graph.setColor))
+                    {
+                        ImGui.ColorPicker4("Pick color", ref graph.color);
+                        ImGui.End();
+                    }
+                }
 
                 ImGui.SameLine();
 
@@ -387,10 +421,7 @@ namespace Luadio
                 Lua.PushInteger(L, channels);
                 if(Lua.PCall(L, 3, 0, 0) == 0)
                 {
-                    if(graphMode == GraphMode.Frequency)
-                        audioData.SetDataWithFFT(framesOut);
-                    else
-                        audioData.SetData(framesOut);
+                    audioData.SetData(framesOut);
                 }
             }
 
