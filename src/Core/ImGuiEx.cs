@@ -100,13 +100,93 @@ namespace Luadio
             drawList.AddCircleFilled(center, radiusOuter, ImGui.GetColorU32(ImGuiCol.FrameBg), 16);
             drawList.AddLine(new Vector2(center.X + angleCos * radiusInner, center.Y + angle_sin * radiusInner), new Vector2(center.X + angleCos * (radiusOuter - 2), center.Y + angle_sin * (radiusOuter - 2)), ImGui.GetColorU32(ImGuiCol.SliderGrabActive), 2.0f);
             drawList.AddCircleFilled(center, radiusInner, ImGui.GetColorU32(isActive ? ImGuiCol.FrameBgActive : isHovered ? ImGuiCol.FrameBgHovered : ImGuiCol.FrameBg), 16);
-            //drawList->AddText(ImVec2(cursorPosition.x, cursorPosition.y + radiusOuter * 2 + style.ItemInnerSpacing.y), ImGui.GetColorU32(ImGuiCol_Text), label);
+            //drawList->AddText(Vector2(cursorPosition.x, cursorPosition.y + radiusOuter * 2 + style.ItemInnerSpacing.y), ImGui.GetColorU32(ImGuiCol_Text), label);
 
             if (isActive || isHovered)
             {
                 ImGui.SetNextWindowPos(new Vector2(cursorPosition.X - style.WindowPadding.X, cursorPosition.Y - lineHeight - style.ItemInnerSpacing.Y - style.WindowPadding.Y));
                 ImGui.BeginTooltip();
                 ImGui.Text($"{label} {value:F3}");
+                ImGui.EndTooltip();
+            }
+
+            return valueChanged;
+        }
+
+        public static bool Knob(string label, ImKnobInfo knobInfo, Vector2 size, ref float value, float min, float max, int snapSteps)
+        {
+            Vector2 cursorPosition = ImGui.GetCursorScreenPos();
+            Vector2 center = new Vector2(cursorPosition.X + (size.X * 0.5f), cursorPosition.Y + (size.Y * 0.5f));
+            float lineHeight = ImGui.GetTextLineHeight();
+
+            var style = ImGui.GetStyle();
+            ImGui.InvisibleButton(label, new Vector2(size.X, size.Y));
+            bool valueChanged = false;
+            bool isActive = ImGui.IsItemActive();
+            bool isHovered = ImGui.IsItemHovered();
+            bool isDragging = ImGui.IsMouseDragging(ImGuiMouseButton.Left);
+
+            float t = (value - min) / (max - min);
+            float gamma = (float)Math.PI / 4.0f;
+            float alpha = ((float)Math.PI - gamma) * t * 2.0f + gamma;
+
+            if(isActive && isDragging)
+            {
+                var io = ImGui.GetIO();
+                Vector2 mousePosition = io.MousePos;
+                alpha = (float)Math.Atan2(mousePosition.X - center.X, center.Y - mousePosition.Y) + (float)Math.PI;
+                alpha = Math.Max(gamma, Math.Min(2.0f * (float)Math.PI - gamma, alpha));
+                float val = 0.5f * (alpha - gamma) / ((float)Math.PI - gamma);
+
+                if(snapSteps > 0)
+                {
+                    if(snapSteps > knobInfo.numberOfSprites)
+                        snapSteps = knobInfo.numberOfSprites;
+
+                    float stepSize = (max - min) / snapSteps;
+                    float snappedValue = min + (float)Math.Round(val * snapSteps) * stepSize;
+                    value = Math.Clamp(snappedValue, min, max);
+                }
+                else
+                {
+                    value = val * (max - min) + min;
+                }
+
+                valueChanged = true;
+            }
+
+            var getUVCoordinates = (float percentage, int numSprites, int rows, int columns, out Vector2 uv0, out Vector2 uv1) => {
+                uv0 = Vector2.Zero;
+                uv1 = Vector2.Zero;
+
+                int index = (int)Math.Floor(percentage * (numSprites-1));
+
+                float spriteWidth = 1.0f / columns;
+                float spriteHeight = 1.0f / rows;
+
+                int colIndex = index % columns;
+                int rowIndex = index / columns;
+
+                uv0.X = colIndex * spriteWidth;
+                uv0.Y = rowIndex * spriteHeight;
+
+                uv1.X = uv0[0] + spriteWidth;
+                uv1.Y = uv0[1] + spriteHeight;
+            };
+
+            Vector2 uv0, uv1;
+            getUVCoordinates(t, knobInfo.numberOfSprites -1, knobInfo.rows, knobInfo.columns, out uv0, out uv1);
+
+            Vector2 pMin = cursorPosition;
+            Vector2 pMax = new Vector2(pMin.X + size.X, pMin.Y + size.Y);
+            var drawList = ImGui.GetWindowDrawList();
+            drawList.AddImage(knobInfo.textureId, pMin, pMax, uv0, uv1);
+
+            if (isActive || isHovered)
+            {
+                ImGui.SetNextWindowPos(new Vector2(cursorPosition.X - style.WindowPadding.X, cursorPosition.Y - lineHeight - style.ItemInnerSpacing.Y - style.WindowPadding.Y));
+                ImGui.BeginTooltip();
+                ImGui.Text($"{value}");
                 ImGui.EndTooltip();
             }
 
@@ -443,6 +523,22 @@ namespace Luadio
             
             // Read the pointer at that address
             return *(IntPtr*)pointerAddress;
+        }
+    }
+
+    public struct ImKnobInfo
+    {
+        public IntPtr textureId;
+        public int numberOfSprites;
+        public int rows;
+        public int columns;
+        
+        public ImKnobInfo(IntPtr textureId, int numberOfSprites, int rows, int columns)
+        {
+            this.textureId = textureId;
+            this.numberOfSprites = numberOfSprites;
+            this.rows = rows;
+            this.columns = columns;
         }
     }
 }

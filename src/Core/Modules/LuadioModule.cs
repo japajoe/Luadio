@@ -29,31 +29,58 @@ namespace Luadio
     public sealed class LuadioModule : LuaModule
     {
         public delegate void LogEvent(string message);
+        public delegate void QueueAudioEvent(string filepath);
 
         public static event LogEvent LogMessage;
+        public static event QueueAudioEvent QueueAudio;
 
         private string source = @"local ffi = require ('ffi')
 local luanet = require('luanet')
 
 local csharp = {}
-csharp.print = luanet.findMethod('Print', 'void (__cdecl*)(char*)')
+csharp.Print = luanet.findMethod('Print', 'void (__cdecl*)(char*)')
+csharp.Play = luanet.findMethod('Play', 'void (__cdecl*)(void)')
+csharp.PlayFromFile = luanet.findMethod('PlayFromFile', 'void (__cdecl*)(char*)')
 
 local luadio = {}
 
-function luadio.print(message)
-    if type(message) == 'number' then
-        message = tostring(message)
+local function c_string(str)
+    if type(str) == 'number' then
+        str = tostring(str)
     end
 
-    local c_message = ffi.new('char[?]', #message + 1)
+    local c_str = ffi.new('char[?]', #str + 1)
+    ffi.copy(c_str, str)
+    return c_str
+end
 
-    ffi.copy(c_message, message)
+function luadio.print(message)
+    local c_message = c_string(message)
+    csharp.Print(c_message)
+end
 
-    csharp.print(c_message)
+function luadio.play(...)
+    local args = {...}
+    local numArgs = #args
+    if numArgs == 1 then
+        local c_filepath = c_string(filepath)
+        csharp.PlayFromFile(c_filepath)
+    else
+        csharp.Play()
+    end
 end
 
 -- Override print function with our own
 print = luadio.print
+
+-- Metatable to prevent overwriting
+local mt = {
+    __newindex = function(table, key, value)
+        error('Attempt to modify read-only method: ' .. key)
+    end,
+}
+
+setmetatable(luadio, mt)
 
 return luadio";
 
@@ -71,6 +98,19 @@ return luadio";
         {
             string s = new string((sbyte*)text);
             LogMessage?.Invoke(s);
+        }
+
+        [LuaExternalMethod]
+        private static unsafe void Play()
+        {
+            QueueAudio?.Invoke(string.Empty);
+        }
+
+        [LuaExternalMethod]
+        private static unsafe void PlayFromFile(byte* filepath)
+        {
+            string s = new string((sbyte*)filepath);
+            QueueAudio?.Invoke(s);
         }
     }
 }

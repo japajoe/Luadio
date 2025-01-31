@@ -30,6 +30,7 @@ using ImGuiColorTextEditNet;
 using ImGuiNET;
 using System.Numerics;
 using System.Threading;
+using System.IO;
 
 namespace Luadio
 {
@@ -54,6 +55,24 @@ namespace Luadio
                 color = new Vector4(174.0f / 255.0f, 112.0f / 255.0f, 1.0f, 1.0f);
             }
         }
+
+        private struct QueueItem
+        {
+            public enum ItemType
+            {
+                Log,
+                Audio
+            }
+
+            public ItemType Type { get; set; }
+            public string Message { get; set; }
+
+            public QueueItem(ItemType type, string message)
+            {
+                this.Type = type;
+                this.Message = message;
+            }
+        }
         
         private Window window;
         private AudioSource audioSource;
@@ -62,7 +81,7 @@ namespace Luadio
         private List<LuaField> fields;
         private AudioData audioData;
         private FFTBuffer fftBuffer;
-        private ConcurrentQueue<string> logQueue;
+        private ConcurrentQueue<QueueItem> eventQueue;
         private List<LuaModule> modules;
         private ImGuiConsole console;
         private ConcurrentQueue<LuaFieldInfo> fieldQueue;
@@ -76,7 +95,7 @@ namespace Luadio
             fields = new List<LuaField>();
             audioData = new AudioData(4096);
             fftBuffer = new FFTBuffer(4096);
-            logQueue = new ConcurrentQueue<string>();
+            eventQueue = new ConcurrentQueue<QueueItem>();
             modules = new List<LuaModule>();
             console = new ImGuiConsole();
             fieldQueue = new ConcurrentQueue<LuaFieldInfo>();
@@ -109,15 +128,17 @@ namespace Luadio
                     modules[i].Initialize(L);
 
                 LuadioModule.LogMessage += OnLogMessage;
+                LuadioModule.QueueAudio += OnQueueAudio;
             }
 
             audioSource = new AudioSource();
-            audioSource.Read += OnAudioRead;
+            audioSource.Loop = true;
+            audioSource.Process += OnAudioRead;
 
             textEditor = new TextEditor
             {
                 AllText = Code.source,
-                SyntaxHighlighter = new LuaStyleHighlighter()
+                SyntaxHighlighter = new LuaHighlighter()
             };
         }
 
@@ -140,7 +161,10 @@ namespace Luadio
             ShowEditor();
             ShowInspector();
             ShowLog();
+            
             OnUpdate(deltaTime);
+            
+            ProcessEventQueue();
         }
 
         private bool showDialog = false;
@@ -272,6 +296,8 @@ namespace Luadio
             }
         }
 
+        float testValue = 0.5f;
+
         private void ShowInspector()
         {  
             if(ImGui.Begin("Inspector"))
@@ -347,6 +373,20 @@ namespace Luadio
                             }
                             break;
                         }
+                        case LuaFieldType.KnobFloat:
+                        {
+                            LuaFieldFloat field = (LuaFieldFloat)fields[i];
+                            ImKnobInfo knobInfo = new ImKnobInfo(GUIStyle.KnobTexture.Handle, 89, 9, 10);
+                            if(ImGuiEx.Knob(field.name, knobInfo, new Vector2(32, 32), ref field.value, field.min, field.max, field.steps))
+                            {
+                                PushFieldToQueue(field);
+                            }
+                            ImGui.SameLine();
+                            float cursorY = ImGui.GetCursorPosY() + 16;
+                            ImGui.SetCursorPosY(cursorY);
+                            ImGui.Text(field.name);
+                            break;
+                        }
                         default:
                             break;
                     }
@@ -366,16 +406,37 @@ namespace Luadio
 
                 console.Draw("Log");
             }
+        }
 
-            if(logQueue.Count > 0)
+        private void ProcessEventQueue()
+        {
+            if(eventQueue.Count > 0)
             {
-                while(logQueue.Count > 0)
+                while(eventQueue.Count > 0)
                 {
-                    if(logQueue.TryDequeue(out string message))
+                    if(eventQueue.TryDequeue(out QueueItem item))
                     {
-                        message = "[" + DateTime.Now.ToString() + "] " + message;
-                        console.AddLog(message);
-                        Console.WriteLine(message);
+                        if(item.Type == QueueItem.ItemType.Log)
+                        {
+                            string message = "[" + DateTime.Now.ToString() + "] " + item.Message;
+                            console.AddLog(message);
+                            Console.WriteLine(message);
+                        }
+                        else if(item.Type == QueueItem.ItemType.Audio)
+                        {
+                            if(!string.IsNullOrEmpty(item.Message))
+                            {
+                                if(File.Exists(item.Message))
+                                {
+                                    AudioClip clip = new AudioClip(item.Message);
+                                    audioSource.Play(clip);
+                                }
+                            }
+                            else
+                            {
+                                audioSource.Play();
+                            }
+                        }
                     }
                 }
             }
@@ -464,6 +525,8 @@ namespace Luadio
                 Lua.PCall(L, 1, 0, 0);
             }
 
+            UpdateFields();
+
             int top = Lua.GetTop(L);
 
             if(top > 0)
@@ -480,7 +543,7 @@ namespace Luadio
 
             if(Lua.IsFunction(L, -1))
             {
-                UpdateFields();
+                
 
                 Lua.PushLightUserData(L, framesOut.Pointer);
                 Lua.PushInteger(L, framesOut.Length);
@@ -501,7 +564,12 @@ namespace Luadio
 
         private void OnLogMessage(string message)
         {
-            logQueue.Enqueue(message);
+            eventQueue.Enqueue(new QueueItem(QueueItem.ItemType.Log, message));
+        }
+
+        private void OnQueueAudio(string filepath)
+        {
+            eventQueue.Enqueue(new QueueItem(QueueItem.ItemType.Audio, filepath));
         }
 
         private void PushFieldToQueue(LuaField field)
@@ -519,6 +587,7 @@ namespace Luadio
                 case LuaFieldType.DragFloat:
                 case LuaFieldType.InputFloat:
                 case LuaFieldType.SliderFloat:
+                case LuaFieldType.KnobFloat:
                 {
                     LuaFieldFloat f = (LuaFieldFloat)field;
                     info.valueAsFloat = f.value;
@@ -555,6 +624,7 @@ namespace Luadio
                     case LuaFieldType.DragFloat:
                     case LuaFieldType.InputFloat:
                     case LuaFieldType.SliderFloat:
+                    case LuaFieldType.KnobFloat:
                     {
                         Compiler.PushFloat(L, field.name, field.valueAsFloat);
                         break;

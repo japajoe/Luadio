@@ -33,6 +33,7 @@ namespace Luadio
             { "sliderfloat", LuaFieldType.SliderFloat },
             { "sliderint", LuaFieldType.SliderInt },
             { "inputfloat", LuaFieldType.InputFloat },
+            { "knobfloat", LuaFieldType.KnobFloat },
             { "inputint", LuaFieldType.InputInt },
             { "dragfloat", LuaFieldType.DragFloat },
             { "dragint", LuaFieldType.DragInt },
@@ -51,7 +52,13 @@ namespace Luadio
                 
                 int tokenIndex = i;
 
-                if(IsNumericAttributeType(tokens, tokenIndex))
+                if(IsNumericAttributeTypeA(tokens, tokenIndex))
+                {
+                    int index = tokens[tokenIndex+0].Position + offset;
+                    offset += 2;
+                    code = code.Insert(index, "--");
+                }
+                else if(IsNumericAttributeTypeB(tokens, tokenIndex))
                 {
                     int index = tokens[tokenIndex+0].Position + offset;
                     offset += 2;
@@ -79,7 +86,7 @@ namespace Luadio
                 
                 int tokenIndex = i;
 
-                if(IsNumericAttributeType(tokens, tokenIndex))
+                if(IsNumericAttributeTypeA(tokens, tokenIndex) || IsNumericAttributeTypeB(tokens, tokenIndex))
                 {
                     string fieldType = tokens[tokenIndex+1].Value.ToLower();
 
@@ -108,6 +115,28 @@ namespace Luadio
                                 continue;
                             
                             if(!float.TryParse(tokens[tokenIndex+10].Value, out field.value))
+                                continue;
+
+                            fields.Add(field);
+                            break;
+                        }
+                        case LuaFieldType.KnobFloat:
+                        {
+                            LuaFieldFloat field = new LuaFieldFloat();
+                            field.type = type;
+
+                            field.name = tokens[tokenIndex+10].Value;
+
+                            if(!float.TryParse(tokens[tokenIndex+3].Value, out field.min))
+                                continue;
+                            
+                            if(!float.TryParse(tokens[tokenIndex+5].Value, out field.max))
+                                continue;
+
+                            if(!int.TryParse(tokens[tokenIndex+7].Value, out field.steps))
+                                continue;
+                            
+                            if(!float.TryParse(tokens[tokenIndex+12].Value, out field.value))
                                 continue;
 
                             fields.Add(field);
@@ -156,100 +185,7 @@ namespace Luadio
             return fields;
         }
 
-        public static List<LuaField> GetFields2(List<Tokenizer.Token> tokens)
-        {
-            List<LuaField> fields = new List<LuaField>();
-
-            for(int i = 0; i < tokens.Count; i++)
-            {
-                if(tokens[i].Type != Tokenizer.TokenType.SquareBracketOpen)
-                    continue;
-                
-                int tokenIndex = i;
-
-                if(tokenIndex + 10 >= tokens.Count)
-                    continue;
-
-                if( tokens[tokenIndex+0].Type == Tokenizer.TokenType.SquareBracketOpen &&
-                    tokens[tokenIndex+1].Type == Tokenizer.TokenType.Identifier &&
-                    tokens[tokenIndex+2].Type == Tokenizer.TokenType.ParenthesisOpen &&
-                    tokens[tokenIndex+3].Type == Tokenizer.TokenType.Number &&
-                    tokens[tokenIndex+4].Type == Tokenizer.TokenType.Comma &&
-                    tokens[tokenIndex+5].Type == Tokenizer.TokenType.Number &&
-                    tokens[tokenIndex+6].Type == Tokenizer.TokenType.ParenthesisClose &&
-                    tokens[tokenIndex+7].Type == Tokenizer.TokenType.SquareBracketClose)
-                {
-                    string fieldType = tokens[tokenIndex+1].Value.ToLower();
-                    LuaFieldType type = LuaFieldType.SliderFloat;
-
-                    Dictionary<string,LuaFieldType> types = new Dictionary<string, LuaFieldType>();
-                    types.Add("sliderfloat", LuaFieldType.SliderFloat);
-                    types.Add("sliderint", LuaFieldType.SliderInt);
-                    types.Add("inputfloat", LuaFieldType.InputFloat);
-                    types.Add("inputint", LuaFieldType.InputInt);
-                    types.Add("dragfloat", LuaFieldType.DragFloat);
-                    types.Add("dragint", LuaFieldType.DragInt);
-                    types.Add("checkbox", LuaFieldType.Checkbox);
-
-                    if(!types.ContainsKey(fieldType))
-                        continue;
-                    
-                    type = types[fieldType];
-
-                    switch(type)
-                    {
-                        case LuaFieldType.DragFloat:
-                        case LuaFieldType.InputFloat:
-                        case LuaFieldType.SliderFloat:
-                        {
-                            LuaFieldFloat field = new LuaFieldFloat();
-                            field.type = type;
-
-                            field.name = tokens[tokenIndex+8].Value;
-
-                            if(!float.TryParse(tokens[tokenIndex+3].Value, out field.min))
-                                continue;
-                            
-                            if(!float.TryParse(tokens[tokenIndex+5].Value, out field.max))
-                                continue;
-                            
-                            if(!float.TryParse(tokens[tokenIndex+10].Value, out field.value))
-                                continue;
-
-                            fields.Add(field);
-                            break;
-                        }
-                        case LuaFieldType.DragInt:
-                        case LuaFieldType.InputInt:
-                        case LuaFieldType.SliderInt:
-                        {
-                            LuaFieldInt field = new LuaFieldInt();
-                            field.type = type;
-
-                            field.name = tokens[tokenIndex+8].Value;
-
-                            if(!int.TryParse(tokens[tokenIndex+3].Value, out field.min))
-                                continue;
-                            
-                            if(!int.TryParse(tokens[tokenIndex+5].Value, out field.max))
-                                continue;
-                            
-                            if(!int.TryParse(tokens[tokenIndex+10].Value, out field.value))
-                                continue;
-
-                            fields.Add(field);
-                            break;
-                        }
-                        default:
-                            break;
-                    }
-                }
-            }
-
-            return fields;
-        }
-
-        private static bool IsNumericAttributeType(List<Tokenizer.Token> tokens, int currentIndex)
+        private static bool IsNumericAttributeTypeA(List<Tokenizer.Token> tokens, int currentIndex)
         {
             if(currentIndex + 10 >= tokens.Count)
                 return false;
@@ -262,6 +198,29 @@ namespace Luadio
                 tokens[currentIndex+5].Type == Tokenizer.TokenType.Number &&
                 tokens[currentIndex+6].Type == Tokenizer.TokenType.ParenthesisClose &&
                 tokens[currentIndex+7].Type == Tokenizer.TokenType.SquareBracketClose)
+            {
+                string fieldType = tokens[currentIndex+1].Value.ToLower();
+                return numericTypes.ContainsKey(fieldType);
+            }
+
+            return false;
+        }
+
+        private static bool IsNumericAttributeTypeB(List<Tokenizer.Token> tokens, int currentIndex)
+        {
+            if(currentIndex + 12 >= tokens.Count)
+                return false;
+
+            if( tokens[currentIndex+0].Type == Tokenizer.TokenType.SquareBracketOpen &&
+                tokens[currentIndex+1].Type == Tokenizer.TokenType.Identifier &&
+                tokens[currentIndex+2].Type == Tokenizer.TokenType.ParenthesisOpen &&
+                tokens[currentIndex+3].Type == Tokenizer.TokenType.Number &&
+                tokens[currentIndex+4].Type == Tokenizer.TokenType.Comma &&
+                tokens[currentIndex+5].Type == Tokenizer.TokenType.Number &&
+                tokens[currentIndex+6].Type == Tokenizer.TokenType.Comma &&
+                tokens[currentIndex+7].Type == Tokenizer.TokenType.Number &&
+                tokens[currentIndex+8].Type == Tokenizer.TokenType.ParenthesisClose &&
+                tokens[currentIndex+9].Type == Tokenizer.TokenType.SquareBracketClose)
             {
                 string fieldType = tokens[currentIndex+1].Value.ToLower();
                 return numericTypes.ContainsKey(fieldType);
@@ -338,7 +297,8 @@ namespace Luadio
         InputFloat,
         InputInt,
         SliderFloat,
-        SliderInt
+        SliderInt,
+        KnobFloat
     }
 
     public class LuaField
@@ -352,6 +312,7 @@ namespace Luadio
         public float value;
         public float min;
         public float max;
+        public int steps;
     }
 
     public class LuaFieldInt : LuaField

@@ -26,134 +26,150 @@ using ImGuiNET;
 
 namespace Luadio
 {
-    public static class GUIStyle
-    {
-        private static ImFontPtr iconFont;
+	public static class GUIStyle
+	{
+		private static ImFontPtr iconFont;
+		private static Texture knobTexture;
 
-        public static ImFontPtr IconFont
-        {
-            get => iconFont;
-        }
+		public static ImFontPtr IconFont
+		{
+			get => iconFont;
+		}
 
-        public static void SetStyle()
-        {
-            var colors = ImGui.GetStyle().Colors;
-            var bg = new Vector4(0.10f, 0.10f, 0.11f, 1.00f);
-            var bgHovered = new Vector4(0.20f, 0.22f, 0.24f, 1.00f);
-            var bgActive = new Vector4(0.23f, 0.26f, 0.29f, 1.00f);
-            var frameBg = new Vector4(0.15f, 0.16f, 0.17f, 1.00f);
-            var menuBg = new Vector4(0.10f, 0.11f, 0.11f, 1.00f);
-            var text = new Vector4(0.86f, 0.87f, 0.88f, 1.00f);
-            var grab = new Vector4(0.17f, 0.18f, 0.19f, 1.00f);
-            var checkMark = new Vector4(0.26f, 0.59f, 0.98f, 1.00f);
+		public static Texture KnobTexture
+		{
+			get => knobTexture;
+		}
 
-            colors[(int)ImGuiCol.Text]                   = text;
-            colors[(int)ImGuiCol.TextDisabled]           = new Vector4(0.50f, 0.50f, 0.50f, 1.00f);
-            colors[(int)ImGuiCol.WindowBg]               = bg;
-            colors[(int)ImGuiCol.ChildBg]                = bg;
-            colors[(int)ImGuiCol.PopupBg]                = frameBg;
-            colors[(int)ImGuiCol.Border]                 = bg;
-            colors[(int)ImGuiCol.BorderShadow]           = new Vector4(0.14f, 0.16f, 0.18f, 1.00f);
-            colors[(int)ImGuiCol.FrameBg]                = frameBg;
-            colors[(int)ImGuiCol.FrameBgHovered]         = bgHovered;
-            colors[(int)ImGuiCol.FrameBgActive]          = bgActive;
-            colors[(int)ImGuiCol.TitleBg]                = bg;
-            colors[(int)ImGuiCol.TitleBgActive]          = bg;
-            colors[(int)ImGuiCol.TitleBgCollapsed]       = bg;
-            colors[(int)ImGuiCol.MenuBarBg]              = menuBg;
-            colors[(int)ImGuiCol.ScrollbarBg]            = bg;
-            colors[(int)ImGuiCol.ScrollbarGrab]          = grab;
-            colors[(int)ImGuiCol.ScrollbarGrabHovered]   = bgHovered;
-            colors[(int)ImGuiCol.ScrollbarGrabActive]    = bgActive;
-            colors[(int)ImGuiCol.CheckMark]              = checkMark;
-            colors[(int)ImGuiCol.SliderGrab]             = bgHovered;
-            colors[(int)ImGuiCol.SliderGrabActive]       = checkMark;
-            colors[(int)ImGuiCol.Button]                 = bg;
-            colors[(int)ImGuiCol.ButtonHovered]          = bgHovered;
-            colors[(int)ImGuiCol.ButtonActive]           = bg;
-            colors[(int)ImGuiCol.Header]                 = grab;
-            colors[(int)ImGuiCol.HeaderHovered]          = bgHovered;
-            colors[(int)ImGuiCol.HeaderActive]           = bgActive;
-            colors[(int)ImGuiCol.Separator]              = bg;
-            colors[(int)ImGuiCol.SeparatorHovered]       = bgHovered;
-            colors[(int)ImGuiCol.SeparatorActive]        = bgActive;
-            colors[(int)ImGuiCol.ResizeGrip]             = grab;
-            colors[(int)ImGuiCol.ResizeGripHovered]      = bgHovered;
-            colors[(int)ImGuiCol.ResizeGripActive]       = bgActive;
-            colors[(int)ImGuiCol.TabHovered]             = menuBg;
-            colors[(int)ImGuiCol.Tab]                    = menuBg;
-            colors[(int)ImGuiCol.TabSelected]            = menuBg;
-            colors[(int)ImGuiCol.TabSelectedOverline]    = menuBg;
-            colors[(int)ImGuiCol.TabDimmed]              = menuBg;
-            colors[(int)ImGuiCol.TabDimmedSelected]      = bg;
-            colors[(int)ImGuiCol.TabDimmedSelectedOverline]  = menuBg;
-            colors[(int)ImGuiCol.DockingPreview]         = new Vector4(0.26f, 0.59f, 0.98f, 0.70f);
-            colors[(int)ImGuiCol.DockingEmptyBg]         = new Vector4(0.20f, 0.20f, 0.20f, 1.00f);
-            colors[(int)ImGuiCol.PlotLines]              = text;
-            colors[(int)ImGuiCol.PlotLinesHovered]       = bgActive;
-            colors[(int)ImGuiCol.PlotHistogram]          = text;
-            colors[(int)ImGuiCol.PlotHistogramHovered]   = bgActive;
-            colors[(int)ImGuiCol.TableHeaderBg]          = menuBg;
-            colors[(int)ImGuiCol.TableBorderStrong]      = menuBg;
-            colors[(int)ImGuiCol.TableBorderLight]       = menuBg;
-            colors[(int)ImGuiCol.TableRowBg]             = bg;
-            colors[(int)ImGuiCol.TableRowBgAlt]          = menuBg;
-            colors[(int)ImGuiCol.TextLink]               = checkMark;
-            colors[(int)ImGuiCol.TextSelectedBg]         = bgActive;
-            colors[(int)ImGuiCol.DragDropTarget]         = new Vector4(1.00f, 1.00f, 0.00f, 0.90f);
-            colors[(int)ImGuiCol.NavHighlight]           = checkMark;
-            colors[(int)ImGuiCol.NavWindowingHighlight]  = new Vector4(1.00f, 1.00f, 1.00f, 0.70f);
-            colors[(int)ImGuiCol.NavWindowingDimBg]      = new Vector4(0.80f, 0.80f, 0.80f, 0.20f);
-            colors[(int)ImGuiCol.ModalWindowDimBg]       = new Vector4(0.10f, 0.10f, 0.11f, 0.50f);
+		public static void SetStyle()
+		{
+			var colors = ImGui.GetStyle().Colors;
+			var bg = new Vector4(0.10f, 0.10f, 0.11f, 1.00f);
+			var bgHovered = new Vector4(0.20f, 0.22f, 0.24f, 1.00f);
+			var bgActive = new Vector4(0.23f, 0.26f, 0.29f, 1.00f);
+			var frameBg = new Vector4(0.15f, 0.16f, 0.17f, 1.00f);
+			var menuBg = new Vector4(0.10f, 0.11f, 0.11f, 1.00f);
+			var text = new Vector4(0.86f, 0.87f, 0.88f, 1.00f);
+			var grab = new Vector4(0.17f, 0.18f, 0.19f, 1.00f);
+			var checkMark = new Vector4(0.26f, 0.59f, 0.98f, 1.00f);
 
-            var style = ImGui.GetStyle();
-            style.FrameBorderSize = 0.0f;
-            style.FrameRounding = 2.0f;
-            style.WindowBorderSize = 1.0f;
-            style.PopupBorderSize = 1.0f;
-            style.ScrollbarSize = 12.0f;
-            style.ScrollbarRounding = 2.0f;
-            style.GrabMinSize = 7.0f;
-            style.GrabRounding = 2.0f;
-            style.TabRounding = 2.0f;
+			colors[(int)ImGuiCol.Text] = text;
+			colors[(int)ImGuiCol.TextDisabled] = new Vector4(0.50f, 0.50f, 0.50f, 1.00f);
+			colors[(int)ImGuiCol.WindowBg] = bg;
+			colors[(int)ImGuiCol.ChildBg] = bg;
+			colors[(int)ImGuiCol.PopupBg] = frameBg;
+			colors[(int)ImGuiCol.Border] = bg;
+			colors[(int)ImGuiCol.BorderShadow] = new Vector4(0.14f, 0.16f, 0.18f, 1.00f);
+			colors[(int)ImGuiCol.FrameBg] = frameBg;
+			colors[(int)ImGuiCol.FrameBgHovered] = bgHovered;
+			colors[(int)ImGuiCol.FrameBgActive] = bgActive;
+			colors[(int)ImGuiCol.TitleBg] = bg;
+			colors[(int)ImGuiCol.TitleBgActive] = bg;
+			colors[(int)ImGuiCol.TitleBgCollapsed] = bg;
+			colors[(int)ImGuiCol.MenuBarBg] = menuBg;
+			colors[(int)ImGuiCol.ScrollbarBg] = bg;
+			colors[(int)ImGuiCol.ScrollbarGrab] = grab;
+			colors[(int)ImGuiCol.ScrollbarGrabHovered] = bgHovered;
+			colors[(int)ImGuiCol.ScrollbarGrabActive] = bgActive;
+			colors[(int)ImGuiCol.CheckMark] = checkMark;
+			colors[(int)ImGuiCol.SliderGrab] = bgHovered;
+			colors[(int)ImGuiCol.SliderGrabActive] = checkMark;
+			colors[(int)ImGuiCol.Button] = bg;
+			colors[(int)ImGuiCol.ButtonHovered] = bgHovered;
+			colors[(int)ImGuiCol.ButtonActive] = bg;
+			colors[(int)ImGuiCol.Header] = grab;
+			colors[(int)ImGuiCol.HeaderHovered] = bgHovered;
+			colors[(int)ImGuiCol.HeaderActive] = bgActive;
+			colors[(int)ImGuiCol.Separator] = bg;
+			colors[(int)ImGuiCol.SeparatorHovered] = bgHovered;
+			colors[(int)ImGuiCol.SeparatorActive] = bgActive;
+			colors[(int)ImGuiCol.ResizeGrip] = grab;
+			colors[(int)ImGuiCol.ResizeGripHovered] = bgHovered;
+			colors[(int)ImGuiCol.ResizeGripActive] = bgActive;
+			colors[(int)ImGuiCol.TabHovered] = menuBg;
+			colors[(int)ImGuiCol.Tab] = menuBg;
+			colors[(int)ImGuiCol.TabSelected] = menuBg;
+			colors[(int)ImGuiCol.TabSelectedOverline] = menuBg;
+			colors[(int)ImGuiCol.TabDimmed] = menuBg;
+			colors[(int)ImGuiCol.TabDimmedSelected] = bg;
+			colors[(int)ImGuiCol.TabDimmedSelectedOverline] = menuBg;
+			colors[(int)ImGuiCol.DockingPreview] = new Vector4(0.26f, 0.59f, 0.98f, 0.70f);
+			colors[(int)ImGuiCol.DockingEmptyBg] = new Vector4(0.20f, 0.20f, 0.20f, 1.00f);
+			colors[(int)ImGuiCol.PlotLines] = text;
+			colors[(int)ImGuiCol.PlotLinesHovered] = bgActive;
+			colors[(int)ImGuiCol.PlotHistogram] = text;
+			colors[(int)ImGuiCol.PlotHistogramHovered] = bgActive;
+			colors[(int)ImGuiCol.TableHeaderBg] = menuBg;
+			colors[(int)ImGuiCol.TableBorderStrong] = menuBg;
+			colors[(int)ImGuiCol.TableBorderLight] = menuBg;
+			colors[(int)ImGuiCol.TableRowBg] = bg;
+			colors[(int)ImGuiCol.TableRowBgAlt] = menuBg;
+			colors[(int)ImGuiCol.TextLink] = checkMark;
+			colors[(int)ImGuiCol.TextSelectedBg] = bgActive;
+			colors[(int)ImGuiCol.DragDropTarget] = new Vector4(1.00f, 1.00f, 0.00f, 0.90f);
+			colors[(int)ImGuiCol.NavHighlight] = checkMark;
+			colors[(int)ImGuiCol.NavWindowingHighlight] = new Vector4(1.00f, 1.00f, 1.00f, 0.70f);
+			colors[(int)ImGuiCol.NavWindowingDimBg] = new Vector4(0.80f, 0.80f, 0.80f, 0.20f);
+			colors[(int)ImGuiCol.ModalWindowDimBg] = new Vector4(0.10f, 0.10f, 0.11f, 0.50f);
 
-            style.WindowPadding = new Vector2(5.0f, 5.0f);
-            style.FramePadding = new Vector2(4.0f, 3.0f);
-            style.ItemSpacing = new Vector2(6.0f, 4.0f);
-            style.ItemInnerSpacing = new Vector2(4.0f, 4.0f);
-            style.TabBarBorderSize = 0;
-            style.WindowBorderSize = 0;
+			var style = ImGui.GetStyle();
+			style.FrameBorderSize = 0.0f;
+			style.FrameRounding = 2.0f;
+			style.WindowBorderSize = 1.0f;
+			style.PopupBorderSize = 1.0f;
+			style.ScrollbarSize = 12.0f;
+			style.ScrollbarRounding = 2.0f;
+			style.GrabMinSize = 7.0f;
+			style.GrabRounding = 2.0f;
+			style.TabRounding = 2.0f;
 
-            var io = ImGui.GetIO();
-            io.Fonts.AddFontDefault();
+			style.WindowPadding = new Vector2(5.0f, 5.0f);
+			style.FramePadding = new Vector2(4.0f, 3.0f);
+			style.ItemSpacing = new Vector2(6.0f, 4.0f);
+			style.ItemInnerSpacing = new Vector2(4.0f, 4.0f);
+			style.TabBarBorderSize = 0;
+			style.WindowBorderSize = 0;
 
-            unsafe
-            {
-                fixed(byte *pFont = &OpenFontIcons.data[0])
-                {
-                    var nativeConfig = ImGuiNative.ImFontConfig_ImFontConfig();
-                    // nativeConfig->OversampleH = 8;
-                    // nativeConfig->OversampleV = 8;
-                    // nativeConfig->RasterizerMultiply = 1.0f;
-                    // nativeConfig->GlyphOffset = new Vector2(0);
+			var io = ImGui.GetIO();
+			io.Fonts.AddFontDefault();
 
-                    nativeConfig->MergeMode = 1;
-                    nativeConfig->GlyphMinAdvanceX = 13.0f; // Use if you want to make the icon monospaced
+			unsafe
+			{
+				fixed (byte* pFont = &FaRegular400.data[0])
+				{
+					var nativeConfig = ImGuiNative.ImFontConfig_ImFontConfig();
 
-                    IntPtr data = new IntPtr(pFont);
-                    iconFont = io.Fonts.AddFontFromMemoryTTF(data, OpenFontIcons.data.Length, 14, nativeConfig);
-                }
-            }
+					nativeConfig->MergeMode = 1;
+					nativeConfig->GlyphMinAdvanceX = 13.0f; // Use if you want to make the icon monospaced
 
-            io.Fonts.Build();
-        }
+					IntPtr data = new IntPtr(pFont);
 
-        public static string GetSettings()
-        {
-            return settings;
-        }
+					var ranges = new ushort[2]
+					{
+				FaRegular400.ICON_MIN_FA,
+				FaRegular400.ICON_MAX_FA
+					};
 
-        private static readonly string settings = @"[Window][Debug##Default]
+					fixed (ushort* pRanges = &ranges[0])
+					{
+						IntPtr ptr = new IntPtr(pRanges);
+						iconFont = io.Fonts.AddFontFromMemoryTTF(data, FaRegular400.data.Length, 14, nativeConfig, ptr);
+					}
+
+				}
+			}
+
+			io.Fonts.Build();
+
+			knobTexture = new Texture(new Image(Knobs.data));
+		}
+
+		public static string GetSettings()
+		{
+			return settings;
+		}
+
+		private static readonly string settings = @"[Window][Debug##Default]
 Pos=293,70
 Size=788,499
 Collapsed=1
@@ -273,5 +289,5 @@ DockSpace             ID=0x8B93E3BD Pos=0,0 Size=512,512 Split=Y HiddenTabBar=1 
   DockNode            ID=0x00000006 Parent=0x8B93E3BD SizeRef=1366,406 CentralNode=1 HiddenTabBar=1
 
 ";
-    }
+	}
 }

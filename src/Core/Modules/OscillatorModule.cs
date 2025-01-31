@@ -143,6 +143,15 @@ function oscillator.get_triangle_sample(phase)
     return 2 * math.abs(2 * (phase - 0.5)) - 1
 end
 
+-- Metatable to prevent overwriting
+local mt = {
+    __newindex = function(table, key, value)
+        error('Attempt to modify read-only method: ' .. key)
+    end,
+}
+
+setmetatable(oscillator, mt)
+
 return oscillator";
 
         public override void Initialize(LuaState L)

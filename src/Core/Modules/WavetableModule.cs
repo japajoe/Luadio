@@ -130,6 +130,15 @@ function math.sign(x)
     end
 end
 
+-- Metatable to prevent overwriting
+local mt = {
+    __newindex = function(table, key, value)
+        error('Attempt to modify read-only method: ' .. key)
+    end,
+}
+
+setmetatable(wavetable, mt)
+
 -- Expose the create_with_wave_type function directly
 return setmetatable({
     create_with_wave_type = wavetable.create_with_wave_type
